@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dorm Senior Duty Calendar</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <h2>Seniors on Duty This Week</h2>
+        <p class="group-label">Group <span id="group-number">1</span></p>
+        <div id="group-members" class="members"></div>
+        <p class="helper">
+          Drag a senior into a night below. Only one senior can cover each night.
+          Click a scheduled name to remove it.
+        </p>
+      </aside>
+      <main class="calendar">
+        <header class="calendar-header">
+          <button id="prev-week" aria-label="Previous week">&larr;</button>
+          <div>
+            <h1 id="week-title">Week of</h1>
+            <p class="week-subtitle">Duty hours: 7:30 PM - 10:00 PM</p>
+          </div>
+          <button id="next-week" aria-label="Next week">&rarr;</button>
+        </header>
+        <section class="calendar-grid" id="calendar-grid"></section>
+      </main>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
