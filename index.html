@@ -12,6 +12,29 @@
         <h2>Seniors on Duty This Week</h2>
         <p class="group-label">Group <span id="group-number">1</span></p>
         <div id="group-members" class="members"></div>
+        <button class="edit-button" id="edit-groups" type="button">Edit Groups</button>
+        <div class="editor" id="group-editor" aria-hidden="true">
+          <label for="group-editor-input">Groups (one line per group)</label>
+          <textarea id="group-editor-input" rows="6"></textarea>
+          <div class="editor-actions">
+            <button class="primary" id="save-groups" type="button">Save Groups</button>
+            <button class="secondary" id="cancel-groups" type="button">Cancel</button>
+            <button class="link-button" id="reset-groups" type="button">Reset to file</button>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <h2>Dorm Chore Groups</h2>
+        <p class="group-label">Group <span id="chore-group-number">1</span></p>
+        <div id="chore-members" class="members"></div>
+        <button class="edit-button" id="edit-chores" type="button">Edit Chore Groups</button>
+        <div class="editor" id="chore-editor" aria-hidden="true">
+          <label for="chore-editor-input">Chore groups (one line per group)</label>
+          <textarea id="chore-editor-input" rows="6"></textarea>
+          <div class="editor-actions">
+            <button class="primary" id="save-chores" type="button">Save Chore Groups</button>
+            <button class="secondary" id="cancel-chores" type="button">Cancel</button>
+          </div>
+        </div>
         <p class="helper">
           Drag a senior into a night below. Only one senior can cover each night.
           Click a scheduled name to remove it.
@@ -27,6 +50,15 @@
           <button id="next-week" aria-label="Next week">&rarr;</button>
         </header>
         <section class="calendar-grid" id="calendar-grid"></section>
+        <section class="calendar-section">
+          <header class="calendar-subheader">
+            <div>
+              <h2>Dorm Chores Calendar 🧹</h2>
+              <p class="week-subtitle">Assign one chore per day.</p>
+            </div>
+          </header>
+          <section class="calendar-grid" id="chores-grid"></section>
+        </section>
       </main>
     </div>
     <script src="app.js"></script>
