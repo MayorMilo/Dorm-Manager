@@ -359,6 +359,13 @@ function parseGroups(text) {
     .slice(0, 5);
 }
 
+function parseList(text) {
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
 async function loadGroups() {
   const storedGroups = localStorage.getItem(DUTY_GROUPS_KEY);
   if (storedGroups) {
@@ -459,6 +466,5 @@ document.getElementById("next-week").addEventListener("click", () => {
   renderCalendar();
 });
 
-renderCalendar();
 loadGroups();
 loadChoreGroups();
