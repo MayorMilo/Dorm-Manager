@@ -4,14 +4,10 @@ const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
 const DUTY_ASSIGNMENTS_KEY = "dorm-duty-assignments";
 const DUTY_GROUPS_KEY = "dorm-duty-groups";
 const CHORE_ASSIGNMENTS_KEY = "dorm-chore-assignments";
-const CHORE_LIST_KEY = "dorm-chore-list";
 const CHORE_GROUPS_KEY = "dorm-chore-groups";
-const DEFAULT_CHORE_GROUPS = `Group 1: Ava, Jordan, Keenan
-Group 2: Riley, Morgan, Taylor
-Group 3: Casey, Logan, Parker`;
-const DEFAULT_CHORE_LIST = `Clean
-Wipe
-Vacuum`;
+const DEFAULT_CHORE_GROUPS = `Group 1: Upper and Lower Hall Bathroom, Front Trash, Lower Hall Trash
+Group 2: Upper Hall Trash, Lower Hall Sweep, Lobby Wipe Down
+Group 3: Laundry Room Check, Kitchen Counters, Back Stairwell`;
 
 const calendarGrid = document.getElementById("calendar-grid");
 const choresGrid = document.getElementById("chores-grid");
@@ -19,7 +15,6 @@ const weekTitle = document.getElementById("week-title");
 const groupNumber = document.getElementById("group-number");
 const groupMembers = document.getElementById("group-members");
 const choreGroupNumber = document.getElementById("chore-group-number");
-const choreList = document.getElementById("chore-list");
 const choreMembers = document.getElementById("chore-members");
 const editGroupsButton = document.getElementById("edit-groups");
 const groupEditor = document.getElementById("group-editor");
@@ -27,11 +22,6 @@ const groupEditorInput = document.getElementById("group-editor-input");
 const saveGroupsButton = document.getElementById("save-groups");
 const cancelGroupsButton = document.getElementById("cancel-groups");
 const resetGroupsButton = document.getElementById("reset-groups");
-const editChoreListButton = document.getElementById("edit-chore-list");
-const choreListEditor = document.getElementById("chore-list-editor");
-const choreListInput = document.getElementById("chore-list-input");
-const saveChoreListButton = document.getElementById("save-chore-list");
-const cancelChoreListButton = document.getElementById("cancel-chore-list");
 const editChoresButton = document.getElementById("edit-chores");
 const choreEditor = document.getElementById("chore-editor");
 const choreEditorInput = document.getElementById("chore-editor-input");
@@ -41,10 +31,8 @@ const cancelChoresButton = document.getElementById("cancel-chores");
 let currentWeekStart = getWeekStart(new Date());
 let groups = [];
 let choreGroups = [];
-let choreListItems = [];
 let latestDutyGroupText = "";
 let latestChoreGroupText = DEFAULT_CHORE_GROUPS;
-let latestChoreListText = DEFAULT_CHORE_LIST;
 
 function getWeekStart(date) {
   const start = new Date(date);
@@ -107,7 +95,7 @@ function buildChoreCard(name) {
   card.addEventListener("dragstart", (event) => {
     card.classList.add("dragging");
     event.dataTransfer.setData("text/plain", name);
-    event.dataTransfer.setData("source", "chore-group");
+    event.dataTransfer.setData("source", "chore-list");
   });
   card.addEventListener("dragend", () => {
     card.classList.remove("dragging");
@@ -127,6 +115,27 @@ function buildAssignmentCard(name, dayKey) {
     delete weekAssignments[dayKey.day];
     assignments[dayKey.week] = weekAssignments;
     saveAssignments(assignments);
+    renderCalendar();
+  });
+  card.addEventListener("dragstart", (event) => {
+    event.dataTransfer.setData("text/plain", name);
+    event.dataTransfer.setData("source", dayKey.day);
+  });
+  return card;
+}
+
+function buildChoreAssignmentCard(name, dayKey) {
+  const card = document.createElement("div");
+  card.className = "assignment";
+  card.draggable = true;
+  card.innerHTML = `<span class="assignment-remove">Click to remove</span>
+    <span class="assignment-name">${name}</span>`;
+  card.addEventListener("click", () => {
+    const assignments = loadChoreAssignments();
+    const weekAssignments = assignments[dayKey.week] || {};
+    delete weekAssignments[dayKey.day];
+    assignments[dayKey.week] = weekAssignments;
+    saveChoreAssignments(assignments);
     renderCalendar();
   });
   card.addEventListener("dragstart", (event) => {
@@ -167,20 +176,6 @@ function renderChoreGroup() {
   choreGroupNumber.textContent = group.number;
   group.members.forEach((member) => {
     choreMembers.appendChild(buildChoreCard(member));
-  });
-}
-
-function renderChoreList() {
-  choreList.innerHTML = "";
-  if (choreListItems.length === 0) {
-    choreList.textContent = "No chores listed yet.";
-    return;
-  }
-  choreListItems.forEach((chore) => {
-    const item = document.createElement("div");
-    item.className = "member";
-    item.textContent = chore;
-    choreList.appendChild(item);
   });
 }
 
@@ -254,95 +249,6 @@ function buildDayCard(date, assignments) {
   return dayCard;
 }
 
-function buildChoreRow(choreName, assignee, dayKey) {
-  const row = document.createElement("div");
-  row.className = "chore-row";
-  const name = document.createElement("div");
-  name.className = "chore-name";
-  name.textContent = choreName;
-
-  let assignment = document.createElement("div");
-  assignment.className = "chore-empty";
-  assignment.textContent = "Drop a name";
-
-  if (assignee) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "assignment chore-assignment";
-    button.innerHTML = `<span class="assignment-remove">Click to remove</span>
-      <span class="assignment-name">${assignee}</span>`;
-    button.addEventListener("click", (event) => {
-      event.stopPropagation();
-      const assignments = loadChoreAssignments();
-      const weekAssignments = assignments[dayKey.week] || {};
-      const dayAssignments = weekAssignments[dayKey.day] || {};
-      delete dayAssignments[choreName];
-      weekAssignments[dayKey.day] = dayAssignments;
-      assignments[dayKey.week] = weekAssignments;
-      saveChoreAssignments(assignments);
-      renderCalendar();
-    });
-    button.draggable = true;
-    button.addEventListener("dragstart", (event) => {
-      event.dataTransfer.setData("text/plain", assignee);
-      event.dataTransfer.setData("source", `chore-assignment:${dayKey.week}:${dayKey.day}:${choreName}`);
-    });
-    assignment = button;
-  }
-
-  row.appendChild(name);
-  row.appendChild(assignment);
-
-  row.addEventListener("dragover", (event) => {
-    event.preventDefault();
-    row.classList.add("drag-over");
-  });
-
-  row.addEventListener("dragleave", () => {
-    row.classList.remove("drag-over");
-  });
-
-  row.addEventListener("drop", (event) => {
-    event.preventDefault();
-    row.classList.remove("drag-over");
-    const nameText = event.dataTransfer.getData("text/plain");
-    const source = event.dataTransfer.getData("source");
-    if (!nameText) {
-      return;
-    }
-    if (source && source !== "chore-group" && !source.startsWith("chore-assignment:")) {
-      return;
-    }
-
-    const currentAssignments = loadChoreAssignments();
-    const weekAssignments = currentAssignments[dayKey.week] || {};
-    const dayAssignments = weekAssignments[dayKey.day] || {};
-    const currentKey = `chore-assignment:${dayKey.week}:${dayKey.day}:${choreName}`;
-
-    if (dayAssignments[choreName] && source !== currentKey) {
-      window.alert("This chore already has someone assigned.");
-      return;
-    }
-
-    if (source && source.startsWith("chore-assignment:") && source !== currentKey) {
-      const [, sourceWeek, sourceDay, sourceChore] = source.split(":");
-      const sourceWeekAssignments = currentAssignments[sourceWeek] || {};
-      const sourceDayAssignments = sourceWeekAssignments[sourceDay] || {};
-      delete sourceDayAssignments[sourceChore];
-      sourceWeekAssignments[sourceDay] = sourceDayAssignments;
-      currentAssignments[sourceWeek] = sourceWeekAssignments;
-    }
-
-    dayAssignments[choreName] = nameText;
-    weekAssignments[dayKey.day] = dayAssignments;
-    currentAssignments[dayKey.week] = weekAssignments;
-    saveChoreAssignments(currentAssignments);
-    renderCalendar();
-  });
-
-  return row;
-}
-
 function buildChoreDayCard(date, assignments) {
   const dayCard = document.createElement("div");
   dayCard.className = "day-card";
@@ -363,29 +269,51 @@ function buildChoreDayCard(date, assignments) {
 
   const dayKey = formatISO(date);
   const weekKey = formatISO(currentWeekStart);
-  const dayAssignments = assignments[weekKey]?.[dayKey] || {};
-  const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+  const dayAssignment = assignments[weekKey]?.[dayKey];
 
-  if (isWeekend) {
+  if (dayAssignment) {
+    dayCard.appendChild(buildChoreAssignmentCard(dayAssignment, { week: weekKey, day: dayKey }));
+  } else {
     const empty = document.createElement("div");
     empty.className = "empty-state";
-    empty.textContent = "No chores scheduled.";
+    empty.textContent = "Drop a chore here.";
     dayCard.appendChild(empty);
-    return dayCard;
   }
 
-  if (choreListItems.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "empty-state";
-    empty.textContent = "Add chores to get started.";
-    dayCard.appendChild(empty);
-    return dayCard;
-  }
+  dayCard.addEventListener("dragover", (event) => {
+    event.preventDefault();
+    dayCard.classList.add("drag-over");
+  });
 
-  choreListItems.forEach((choreName) => {
-    dayCard.appendChild(
-      buildChoreRow(choreName, dayAssignments[choreName], { week: weekKey, day: dayKey })
-    );
+  dayCard.addEventListener("dragleave", () => {
+    dayCard.classList.remove("drag-over");
+  });
+
+  dayCard.addEventListener("drop", (event) => {
+    event.preventDefault();
+    dayCard.classList.remove("drag-over");
+    const nameText = event.dataTransfer.getData("text/plain");
+    const source = event.dataTransfer.getData("source");
+    if (!nameText) {
+      return;
+    }
+
+    const currentAssignments = loadChoreAssignments();
+    const weekAssignments = currentAssignments[weekKey] || {};
+
+    if (weekAssignments[dayKey] && source !== dayKey) {
+      window.alert("This day already has a chore assigned.");
+      return;
+    }
+
+    if (source && source !== "chore-list" && source !== dayKey) {
+      delete weekAssignments[source];
+    }
+
+    weekAssignments[dayKey] = nameText;
+    currentAssignments[weekKey] = weekAssignments;
+    saveChoreAssignments(currentAssignments);
+    renderCalendar();
   });
 
   return dayCard;
@@ -468,13 +396,6 @@ function loadChoreGroups() {
   renderChoreGroup();
 }
 
-function loadChoreList() {
-  const storedList = localStorage.getItem(CHORE_LIST_KEY);
-  latestChoreListText = storedList || DEFAULT_CHORE_LIST;
-  choreListItems = parseList(latestChoreListText);
-  renderChoreList();
-}
-
 function openEditor(editor, input, value) {
   editor.classList.add("is-open");
   editor.setAttribute("aria-hidden", "false");
@@ -514,28 +435,6 @@ resetGroupsButton.addEventListener("click", () => {
   closeEditor(groupEditor);
 });
 
-editChoreListButton.addEventListener("click", () => {
-  openEditor(choreListEditor, choreListInput, latestChoreListText);
-});
-
-saveChoreListButton.addEventListener("click", () => {
-  const value = choreListInput.value.trim();
-  if (!value) {
-    window.alert("Please enter at least one chore.");
-    return;
-  }
-  localStorage.setItem(CHORE_LIST_KEY, value);
-  latestChoreListText = value;
-  choreListItems = parseList(value);
-  renderChoreList();
-  renderCalendar();
-  closeEditor(choreListEditor);
-});
-
-cancelChoreListButton.addEventListener("click", () => {
-  closeEditor(choreListEditor);
-});
-
 editChoresButton.addEventListener("click", () => {
   openEditor(choreEditor, choreEditorInput, latestChoreGroupText);
 });
@@ -569,5 +468,3 @@ document.getElementById("next-week").addEventListener("click", () => {
 
 loadGroups();
 loadChoreGroups();
-loadChoreList();
-renderCalendar();
