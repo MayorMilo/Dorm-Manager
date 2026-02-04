@@ -55,6 +55,12 @@ body {
   gap: 10px;
 }
 
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 8px 0;
+}
+
 .member {
   background: var(--accent);
   border: 1px dashed transparent;
@@ -72,6 +78,75 @@ body {
   font-size: 13px;
   color: var(--muted);
   line-height: 1.4;
+}
+
+.edit-button {
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.editor {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--accent);
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.editor.is-open {
+  display: flex;
+}
+
+.editor label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.editor textarea {
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  padding: 10px;
+  font-family: inherit;
+  font-size: 13px;
+  resize: vertical;
+  min-height: 120px;
+}
+
+.editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.editor-actions button {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.editor-actions .primary {
+  background: var(--primary);
+  color: white;
+}
+
+.editor-actions .secondary {
+  background: white;
+  border: 1px solid var(--border);
+}
+
+.editor-actions .link-button {
+  background: transparent;
+  color: var(--muted);
+  text-decoration: underline;
 }
 
 .calendar {
@@ -99,6 +174,21 @@ body {
   color: var(--muted);
   font-size: 14px;
   margin-top: 4px;
+}
+
+.calendar-subheader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--card);
+  padding: 16px 20px;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(31, 35, 51, 0.06);
+}
+
+.calendar-subheader h2 {
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .calendar-header button {
@@ -157,14 +247,30 @@ body {
   font-weight: 600;
   cursor: pointer;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 4px;
+  transition: background 0.2s ease;
 }
 
-.assignment span {
+.assignment-name {
+  transition: opacity 0.2s ease;
+}
+
+.assignment-remove {
   font-size: 12px;
   color: var(--muted);
   font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.assignment:hover .assignment-remove {
+  opacity: 1;
+}
+
+.assignment:hover .assignment-name {
+  opacity: 0.5;
 }
 
 .empty-state {
