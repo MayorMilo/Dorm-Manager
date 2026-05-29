@@ -30,8 +30,10 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  padding: 40px 22px 18px;
-  gap: 14px;
+  padding: 28px 18px 10px;
+  gap: 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* ── Header ───────────────────────────────── */
@@ -222,7 +224,7 @@ body {
 }
 
 .counter-n {
-  font-size: 30px;
+  font-size: 24px;
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.02em;

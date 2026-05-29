@@ -5,10 +5,10 @@ const isDev = !app.isPackaged
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 600,
-    height: 760,
-    minWidth: 500,
-    minHeight: 640,
+    width: 520,
+    height: 480,
+    resizable: false,
+    alwaysOnTop: true,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,

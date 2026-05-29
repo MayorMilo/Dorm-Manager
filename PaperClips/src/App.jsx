@@ -246,13 +246,13 @@ export default function App() {
 
       <div className="counters">
         <div className="counter">
-          <span className="counter-n">{rightClips.length}</span>
-          <span className="counter-label">sent today</span>
+          <span className="counter-n">{leftClips.length}</span>
+          <span className="counter-label">remaining</span>
         </div>
         <div className="counter-sep" />
         <div className="counter">
-          <span className="counter-n">{leftClips.length}</span>
-          <span className="counter-label">remaining</span>
+          <span className="counter-n">{rightClips.length}</span>
+          <span className="counter-label">sent today</span>
         </div>
       </div>
 

@@ -3,8 +3,8 @@ import Matter from 'matter-js'
 
 const { Engine, World, Bodies, Body, Composite, Sleeping } = Matter
 
-export const JAR_W = 236
-export const JAR_H = 420
+export const JAR_W = 220
+export const JAR_H = 280
 
 // Physics body only slightly larger than the visual (12×28) — gives minimal
 // forced spacing while still preventing full overlap
@@ -189,10 +189,10 @@ export function PhysicsJar({
     }
   }, [draggingClipId, startLoop])
 
-  // ── Cursor sweep: push clips with pointer held down ──────────────────────
+  // ── Cursor sweep: push clips only while a button is held ────────────────
   const handleJarPointerMove = useCallback((e) => {
     if (isGhostDragging) return   // ghost drag in flight — don't jostle
-    if (e.buttons === 0) return   // only jostle while pressing
+    if (e.buttons === 0) return   // hover-only movement — no jostle
 
     const engine = engineRef.current
     if (!engine) return
@@ -201,8 +201,9 @@ export function PhysicsJar({
     const mx = e.clientX - rect.left
     const my = e.clientY - rect.top
 
-    const RADIUS   = 30   // px — push field radius
-    const STRENGTH = 0.0006
+    const RADIUS    = 32  // px — push field radius
+    const MAX_KICK  = 2   // px/tick added per event
+    const MAX_SPEED = 5   // hard cap so clips can't fly off
 
     const all     = Composite.allBodies(engine.world)
     const dynamic = all.filter(b => b.clipId !== undefined && !b.isStatic)
@@ -213,9 +214,21 @@ export function PhysicsJar({
       const dy   = b.position.y - my
       const dist = Math.hypot(dx, dy)
       if (dist < RADIUS && dist > 0.5) {
-        const f = (RADIUS - dist) / RADIUS * STRENGTH
+        const scale = (RADIUS - dist) / RADIUS
         if (b.isSleeping) Sleeping.set(b, false)
-        Body.applyForce(b, b.position, { x: (dx / dist) * f, y: (dy / dist) * f })
+
+        // Accumulate velocity kick in repulsion direction …
+        let vx = b.velocity.x + (dx / dist) * scale * MAX_KICK
+        let vy = b.velocity.y + (dy / dist) * scale * MAX_KICK
+
+        // … but clamp total speed so rapid mouse movement can't rocket clips
+        const speed = Math.hypot(vx, vy)
+        if (speed > MAX_SPEED) {
+          vx = (vx / speed) * MAX_SPEED
+          vy = (vy / speed) * MAX_SPEED
+        }
+
+        Body.setVelocity(b, { x: vx, y: vy })
         any = true
       }
     }
